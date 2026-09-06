@@ -1,474 +1,394 @@
-import React, { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  UploadCloud,
-  FileText,
-  AlertTriangle,
-  CheckCircle2,
-  ShieldAlert,
-  ArrowRight,
-  Lock,
-  Scale,
-  Building2,
-  Sparkles,
-  X,
-  FileCheck,
-  Eye,
-  Check,
-  Clock,
-} from "lucide-react";
-
-export default function TenderRiskLanding() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [droppedFileName, setDroppedFileName] = useState<string | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [formSubmitted, setFormSubmitted] = useState(false);
-  const [formData, setFormData] = useState({
-    email: "",
-    trade: "HVAC",
-    volume: "5-15",
-  });
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setDroppedFileName(e.dataTransfer.files[0].name);
-      setIsModalOpen(true);
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TenderRisk AI — Pre-Bid Risk Screening for Subcontractors</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @keyframes pulse-border {
+      0%, 100% { border-color: rgba(245, 158, 11, 0.3); }
+      50% { border-color: rgba(245, 158, 11, 0.8); }
     }
-  };
-
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setDroppedFileName(e.target.files[0].name);
-      setIsModalOpen(true);
+    .dropzone-active {
+      border-color: #f59e0b !important;
+      background-color: rgba(245, 158, 11, 0.05) !important;
     }
-  };
+  </style>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white font-sans antialiased relative overflow-x-hidden">
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormSubmitted(true);
-  };
+  <!-- Background Grid & Glow -->
+  <div class="fixed inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] pointer-events-none"></div>
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[900px] h-[350px] bg-gradient-to-b from-indigo-600/15 via-amber-500/5 to-transparent blur-3xl pointer-events-none"></div>
 
-  return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white font-sans antialiased relative overflow-hidden">
-      {/* Background Decorative Gradients & Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b0f_1px,transparent_1px),linear-gradient(to_bottom,#1e293b0f_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[360px] bg-gradient-to-b from-indigo-500/10 via-amber-500/5 to-transparent blur-3xl pointer-events-none" />
+  <!-- 1. NAVIGATION BAR -->
+  <header class="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-600 to-slate-900 border border-indigo-500/40 flex items-center justify-center shadow-inner">
+          <i data-lucide="shield-alert" class="w-5 h-5 text-indigo-400"></i>
+        </div>
+        <span class="font-bold tracking-tight text-lg text-white flex items-center gap-1.5">
+          TenderRisk <span class="text-indigo-400">AI</span>
+        </span>
+        <span class="text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium">
+          DACH Pilot
+        </span>
+      </div>
 
-      {/* 1. NAVIGATION BAR */}
-      <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-600 to-slate-900 border border-indigo-500/40 flex items-center justify-center shadow-inner">
-              <ShieldAlert className="w-5 h-5 text-indigo-400" />
+      <div class="flex items-center space-x-4">
+        <a href="#how-it-works" class="text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors hidden sm:inline-block">
+          How it Works
+        </a>
+        <button onclick="openModal()" class="px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25 transition-all border border-indigo-400/30">
+          Run Free Audit
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-12 pb-24 relative z-10">
+
+    <!-- 2. HERO SECTION -->
+    <section class="text-center max-w-3xl mx-auto mb-16">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300 mb-6 shadow-sm">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+        <span>Commercial Construction Risk Screening</span>
+      </div>
+
+      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight sm:leading-[1.15]">
+        Spot fatal contract penalties <br class="hidden sm:inline" />
+        <span class="bg-gradient-to-r from-amber-400 via-amber-300 to-indigo-400 bg-clip-text text-transparent">
+          before you waste 20 hours estimating.
+        </span>
+      </h1>
+
+      <p class="mt-6 text-sm sm:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed">
+        A defensive pre-bid audit for HVAC, drywall, electrical, and concrete subcontractors. Extract liquidated damages, penalty clauses, and liability traps in seconds—linked directly to the page.
+      </p>
+
+      <!-- Central Dropzone -->
+      <div class="mt-10 max-w-xl mx-auto">
+        <div
+          id="dropzone"
+          class="relative cursor-pointer group rounded-2xl border-2 border-dashed border-slate-800 hover:border-slate-700 bg-slate-900/60 p-8 transition-all hover:bg-slate-900/90 text-center"
+        >
+          <input type="file" id="fileInput" accept=".pdf" class="hidden" />
+
+          <div class="flex flex-col items-center justify-center space-y-4">
+            <div class="w-14 h-14 rounded-xl bg-slate-800/90 border border-slate-700/80 flex items-center justify-center group-hover:scale-105 group-hover:border-amber-500/40 transition-transform">
+              <i data-lucide="upload-cloud" class="w-7 h-7 text-indigo-400 group-hover:text-amber-400 transition-colors"></i>
             </div>
-            <span className="font-bold tracking-tight text-lg text-white flex items-center gap-2">
-              TenderRisk <span className="text-indigo-400">AI</span>
-            </span>
-            <span className="text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium">
-              DACH Pilot
-            </span>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <a
-              href="#how-it-works"
-              className="text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors hidden sm:inline-block"
-            >
-              How it Works
-            </a>
+            <div>
+              <p class="text-sm sm:text-base font-semibold text-slate-200 group-hover:text-white">
+                Drag & drop tender PDF bundle <span class="text-xs font-normal text-slate-400 font-mono">(Up to 200 pages)</span>
+              </p>
+              <p class="text-xs text-slate-500 mt-1 flex items-center justify-center gap-1.5">
+                <i data-lucide="lock" class="w-3 h-3 text-slate-400"></i>
+                Encrypted & confidential. Analyzed for VOB/DIN & commercial liability.
+              </p>
+            </div>
             <button
-              onClick={() => setIsModalOpen(true)}
-              className="px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25 transition-all active:scale-[0.98] border border-indigo-400/30"
+              type="button"
+              onclick="document.getElementById('fileInput').click()"
+              class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white tracking-wide transition shadow-md shadow-indigo-600/30"
             >
-              Run Free Audit
+              Upload Tender for Risk Report
             </button>
           </div>
         </div>
-      </header>
+      </div>
+    </section>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-24 relative z-10">
-        {/* 2. HERO SECTION */}
-        <section className="text-center max-w-4xl mx-auto mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300 mb-6 shadow-sm"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>Commercial Construction Risk Screening</span>
-          </motion.div>
+    <!-- 3. LIVE AUDIT PREVIEW CARD -->
+    <section class="max-w-3xl mx-auto mb-20">
+      <div class="flex items-center justify-between mb-3 px-1">
+        <div class="flex items-center gap-2">
+          <i data-lucide="eye" class="w-4 h-4 text-indigo-400"></i>
+          <span class="text-xs font-mono uppercase tracking-wider text-slate-400">Sample Live Inspection Preview</span>
+        </div>
+        <span class="text-xs font-mono text-emerald-400 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          Audit Complete
+        </span>
+      </div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight sm:leading-[1.15]"
-          >
-            Spot fatal contract penalties{" "}
-            <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-indigo-400 bg-clip-text text-transparent">
-              before you waste 20 hours estimating.
-            </span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-6 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed"
-          >
-            A defensive pre-bid audit for HVAC, drywall, electrical, and concrete subcontractors.
-            Extract liquidated damages, penalty clauses, and liability traps in seconds—linked directly to the page.
-          </motion.p>
-
-          {/* DRAG AND DROP ZONE */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-10 max-w-2xl mx-auto"
-          >
-            <div
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              className={`relative cursor-pointer group rounded-2xl border-2 border-dashed p-8 transition-all duration-200 bg-slate-900/60 backdrop-blur-sm ${
-                isDragging
-                  ? "border-amber-400 bg-amber-500/5 shadow-2xl shadow-amber-500/10 scale-[1.01]"
-                  : "border-slate-800 hover:border-slate-700 hover:bg-slate-900/90"
-              }`}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf"
-                className="hidden"
-                onChange={handleFileInput}
-              />
-
-              <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                <div className="w-14 h-14 rounded-xl bg-slate-800/90 border border-slate-700/80 flex items-center justify-center group-hover:scale-105 group-hover:border-amber-500/40 transition-transform">
-                  <UploadCloud className="w-7 h-7 text-indigo-400 group-hover:text-amber-400 transition-colors" />
-                </div>
-                <div>
-                  <p className="text-base font-semibold text-slate-200 group-hover:text-white">
-                    Drag & drop tender PDF bundle{" "}
-                    <span className="text-xs font-normal text-slate-400 font-mono">(Up to 200 pages)</span>
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1 flex items-center justify-center gap-1.5">
-                    <Lock className="w-3 h-3 text-slate-400" />
-                    Encrypted & confidential. Analyzed for VOB/DIN & commercial liability.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white tracking-wide transition-all shadow-md shadow-indigo-600/30"
-                >
-                  Upload Tender for Risk Report
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </section>
-
-        {/* 3. LIVE AUDIT PREVIEW CARD (VISUAL PROOF) */}
-        <section className="max-w-4xl mx-auto mb-24">
-          <div className="flex items-center justify-between mb-3 px-1">
-            <div className="flex items-center gap-2">
-              <Eye className="w-4 h-4 text-indigo-400" />
-              <span className="text-xs font-mono uppercase tracking-wider text-slate-400">
-                Sample Live Inspection Preview
-              </span>
-            </div>
-            <span className="text-xs font-mono text-emerald-400 flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Audit Complete
-            </span>
-          </div>
-
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/95 overflow-hidden shadow-2xl">
-            {/* Mock Header */}
-            <div className="border-b border-slate-800/80 px-5 py-4 bg-slate-950/40 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <FileText className="w-5 h-5 text-indigo-400" />
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-200">
-                    Bid Risk Audit — Spec Package #402-B
-                  </h3>
-                  <p className="text-xs font-mono text-slate-500">
-                    Hospital Phase II • Gewerke: Lüftungs- & Klimatechnik
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                  HIGH RISK FLAGGED
-                </span>
-              </div>
-            </div>
-
-            {/* Mock Body */}
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800">
-                  <span className="text-[11px] font-mono text-slate-500 block uppercase">Finding</span>
-                  <span className="text-sm font-semibold text-slate-200">Liquidated Damages</span>
-                </div>
-                <div className="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800">
-                  <span className="text-[11px] font-mono text-slate-500 block uppercase">Financial Exposure</span>
-                  <span className="text-sm font-semibold text-amber-400">€10,000 / calendar day</span>
-                  <span className="text-[10px] text-slate-400 block mt-0.5">(Capped at 15% contract sum)</span>
-                </div>
-                <div className="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800">
-                  <span className="text-[11px] font-mono text-slate-500 block uppercase">Source Citation</span>
-                  <span className="text-sm font-semibold text-slate-200">Section 12.4, Page 147</span>
-                  <span className="text-[10px] text-slate-400 font-mono block mt-0.5">"Verzugsstrafen & Pönalen"</span>
-                </div>
-              </div>
-
-              {/* Verified Clause Excerpt */}
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80 relative">
-                <div className="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
-                  <span>EXCERPT MATCH FROM SPECIFICATION PDF:</span>
-                  <span className="text-indigo-400">Confidence: 96%</span>
-                </div>
-                <blockquote className="text-xs sm:text-sm font-mono text-slate-300 border-l-2 border-amber-400 pl-3 leading-relaxed italic bg-slate-900/30 py-1">
-                  "...subcontractor shall forfeit 0.2% of the net contract value per business day of delay in meeting the interim cooling readiness milestones, capped at a maximum of 15% of the gross order total. Weather delays under VOB/B § 6 Abs. 2 shall require formal notarized proof within 24 hours..."
-                </blockquote>
-              </div>
-
-              {/* Human Verification Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 text-xs pt-1 text-slate-400">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-indigo-950 border border-indigo-500 flex items-center justify-center text-indigo-400">
-                    <Check className="w-3 h-3" />
-                  </div>
-                  <span>Human Verification Flag: <strong className="text-slate-200">Verify against schedule milestones (Page 189)</strong></span>
-                </div>
-                <span className="font-mono text-[11px] text-slate-500">DIN 18299 & VOB compliant checklist</span>
-              </div>
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/90 overflow-hidden shadow-2xl">
+        <div class="border-b border-slate-800/80 px-5 py-4 bg-slate-950/40 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <i data-lucide="file-text" class="w-5 h-5 text-indigo-400"></i>
+            <div>
+              <h3 class="text-sm font-semibold text-slate-200">Bid Risk Audit — Spec Package #402-B</h3>
+              <p class="text-xs font-mono text-slate-500">Hospital Phase II • Gewerke: Lüftungs- & Klimatechnik</p>
             </div>
           </div>
-        </section>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+            HIGH RISK FLAGGED
+          </span>
+        </div>
 
-        {/* 4. THREE-STEP WORKFLOW */}
-        <section id="how-it-works" className="max-w-5xl mx-auto mb-24 scroll-mt-24">
-          <div className="text-center mb-12">
-            <span className="text-xs font-mono uppercase tracking-widest text-indigo-400">Defensive Pre-Bid Protocol</span>
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mt-1">How TenderRisk AI protects your margins</h2>
+        <div class="p-6 space-y-5">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+            <div class="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800">
+              <span class="text-[11px] font-mono text-slate-500 block uppercase">Finding</span>
+              <span class="text-sm font-semibold text-slate-200">Liquidated Damages</span>
+            </div>
+            <div class="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800">
+              <span class="text-[11px] font-mono text-slate-500 block uppercase">Financial Exposure</span>
+              <span class="text-sm font-semibold text-amber-400">€10,000 / calendar day</span>
+              <span class="text-[10px] text-slate-400 block mt-0.5">(Capped at 15% contract sum)</span>
+            </div>
+            <div class="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800">
+              <span class="text-[11px] font-mono text-slate-500 block uppercase">Source Citation</span>
+              <span class="text-sm font-semibold text-slate-200">Section 12.4, Page 147</span>
+              <span class="text-[10px] text-slate-400 font-mono block mt-0.5">"Verzugsstrafen & Pönalen"</span>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-xl bg-slate-900/50 border border-slate-800 relative group hover:border-slate-700 transition">
-              <div className="w-8 h-8 rounded-lg bg-slate-800 text-indigo-400 font-mono text-sm font-bold flex items-center justify-center mb-4 border border-slate-700">
-                01
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/80">
+            <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
+              <span>EXCERPT MATCH FROM SPECIFICATION PDF:</span>
+              <span class="text-indigo-400">Confidence: 96%</span>
+            </div>
+            <blockquote class="text-xs sm:text-sm font-mono text-slate-300 border-l-2 border-amber-400 pl-3 italic bg-slate-900/30 py-1.5">
+              "...subcontractor shall forfeit 0.2% of the net contract value per business day of delay in meeting the interim cooling readiness milestones, capped at a maximum of 15% of the gross order total. Weather delays under VOB/B § 6 Abs. 2 shall require formal notarized proof within 24 hours..."
+            </blockquote>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3 text-xs pt-1 text-slate-400 border-t border-slate-800/60">
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-4 rounded bg-indigo-950 border border-indigo-500 flex items-center justify-center text-indigo-400">
+                <i data-lucide="check" class="w-3 h-3"></i>
               </div>
-              <h3 className="text-base font-semibold text-white mb-2">Shred the Bundle</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                Upload massive 200-page tender packages, VOB specifications, and subcontractor terms without reading every line first.
-              </p>
+              <span>Human Verification Flag: <strong class="text-slate-200">Verify against schedule milestones (Page 189)</strong></span>
             </div>
-
-            <div className="p-6 rounded-xl bg-slate-900/50 border border-slate-800 relative group hover:border-slate-700 transition">
-              <div className="w-8 h-8 rounded-lg bg-slate-800 text-amber-400 font-mono text-sm font-bold flex items-center justify-center mb-4 border border-slate-700">
-                02
-              </div>
-              <h3 className="text-base font-semibold text-white mb-2">Screen Penalty Traps</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                Domain-specific models screen for uncapped liquidated damages, impossible timeline shifts, and shifted defect warranties.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl bg-slate-900/50 border border-slate-800 relative group hover:border-slate-700 transition">
-              <div className="w-8 h-8 rounded-lg bg-slate-800 text-emerald-400 font-mono text-sm font-bold flex items-center justify-center mb-4 border border-slate-700">
-                03
-              </div>
-              <h3 className="text-base font-semibold text-white mb-2">Decide Go / No-Go</h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                Receive page-anchored evidence to either price in risk contingency, push back during Q&A, or walk away before calculating lines.
-              </p>
-            </div>
+            <span class="font-mono text-[11px] text-slate-500">DIN 18299 & VOB compliant checklist</span>
           </div>
-        </section>
+        </div>
+      </div>
+    </section>
 
-        {/* 5. CONCIERGE VALIDATION PRICING ANCHOR */}
-        <section className="max-w-xl mx-auto mb-20">
-          <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-indigo-500/30 text-center shadow-xl relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-indigo-600 text-[11px] font-semibold text-white uppercase tracking-wider">
-              Pilot Cohort Offer
-            </div>
-            <h3 className="text-xl font-bold text-white mt-1">Manual Concierge Pre-Bid Audit</h3>
-            <div className="my-4">
-              <span className="text-3xl sm:text-4xl font-extrabold text-white">€0</span>
-              <span className="text-xs text-slate-400 ml-2 line-through font-mono">Standard €29/tender</span>
-            </div>
-            <p className="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed">
-              We run our full proprietary clause analysis + human verification on your active tender bundle in exchange for a 10-minute feedback call.
-            </p>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="w-full py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2"
-            >
-              <span>Claim Pilot Audit Spot</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-            <p className="text-[11px] text-amber-400/90 font-mono mt-3 flex items-center justify-center gap-1">
-              <Clock className="w-3.5 h-3.5" />
-              Limited to 15 active subcontractor estimators
-            </p>
-          </div>
-        </section>
+    <!-- 4. THREE-STEP WORKFLOW -->
+    <section id="how-it-works" class="max-w-4xl mx-auto mb-20 scroll-mt-20">
+      <div class="text-center mb-10">
+        <span class="text-xs font-mono uppercase tracking-widest text-indigo-400">Defensive Pre-Bid Protocol</span>
+        <h2 class="text-2xl font-bold text-white mt-1">How TenderRisk AI protects your margins</h2>
+      </div>
 
-        {/* 6. TRUST & LEGAL DISCLAIMER BAR */}
-        <section className="max-w-3xl mx-auto border-t border-slate-800/80 pt-8 text-center">
-          <div className="flex items-center justify-center gap-2 mb-2 text-slate-400">
-            <Scale className="w-4 h-4 text-slate-400" />
-            <span className="text-xs font-mono uppercase tracking-wider font-semibold">Strict Safeguards & Confidentiality</span>
-          </div>
-          <p className="text-xs text-slate-500 max-w-2xl mx-auto leading-relaxed">
-            Built for decision intelligence, not legal replacement. Every finding is verifiable with source page links. Zero data retention for uploaded files: PDFs are scrubbed from memory immediately post-screening.
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="p-6 rounded-xl bg-slate-900/50 border border-slate-800">
+          <div class="w-8 h-8 rounded-lg bg-slate-800 text-indigo-400 font-mono text-xs font-bold flex items-center justify-center mb-3 border border-slate-700">01</div>
+          <h3 class="text-sm font-bold text-white mb-2">1. Shred the Bundle</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Upload massive 200-page tender packages, VOB specifications, and subcontractor terms without reading every line first.</p>
+        </div>
+
+        <div class="p-6 rounded-xl bg-slate-900/50 border border-slate-800">
+          <div class="w-8 h-8 rounded-lg bg-slate-800 text-amber-400 font-mono text-xs font-bold flex items-center justify-center mb-3 border border-slate-700">02</div>
+          <h3 class="text-sm font-bold text-white mb-2">2. Screen Penalty Traps</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Construction-specific AI detects delay penalties, unfeasible milestones, and retention traps automatically.</p>
+        </div>
+
+        <div class="p-6 rounded-xl bg-slate-900/50 border border-slate-800">
+          <div class="w-8 h-8 rounded-lg bg-slate-800 text-emerald-400 font-mono text-xs font-bold flex items-center justify-center mb-3 border border-slate-700">03</div>
+          <h3 class="text-sm font-bold text-white mb-2">3. Decide Go / No-Go</h3>
+          <p class="text-xs text-slate-400 leading-relaxed">Make fast Go/No-Go decisions before spending estimating budget, backed by exact page citations.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. PILOT PRICING ANCHOR -->
+    <section class="max-w-md mx-auto mb-16">
+      <div class="p-6 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-indigo-500/30 text-center shadow-xl relative">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-indigo-600 text-[10px] font-semibold text-white uppercase tracking-wider">
+          Pilot Cohort Offer
+        </div>
+        <h3 class="text-lg font-bold text-white mt-1">Concierge Pre-Bid Audit</h3>
+        <div class="my-3">
+          <span class="text-3xl font-extrabold text-white">€0</span>
+          <span class="text-xs text-slate-400 ml-2 line-through font-mono">Standard €29/tender</span>
+        </div>
+        <p class="text-xs text-slate-300 mb-5 leading-relaxed">
+          We screen your active tender bundle using our risk model with human verification in exchange for your feedback.
+        </p>
+        <button
+          onclick="openModal()"
+          class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2"
+        >
+          <span>Claim Pilot Audit Spot</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+        <p class="text-[11px] text-amber-400 font-mono mt-3 flex items-center justify-center gap-1">
+          <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+          Limited to 15 active subcontractor estimators
+        </p>
+      </div>
+    </section>
+
+    <!-- 6. TRUST & LEGAL DISCLAIMER -->
+    <section class="max-w-2xl mx-auto border-t border-slate-800/80 pt-6 text-center">
+      <div class="flex items-center justify-center gap-2 mb-2 text-slate-400">
+        <i data-lucide="scale" class="w-4 h-4"></i>
+        <span class="text-xs font-mono uppercase tracking-wider font-semibold">Strict Safeguards & Confidentiality</span>
+      </div>
+      <p class="text-xs text-slate-500 leading-relaxed">
+        Built for decision intelligence, not legal replacement. Every finding is verifiable with source page links. Zero data retention for uploaded files.
+      </p>
+    </section>
+  </main>
+
+  <!-- 7. CONVERSION MODAL -->
+  <div id="modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+    <div class="relative w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-200">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Form View -->
+      <div id="modalForm">
+        <div class="mb-5">
+          <span class="inline-block px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[11px] font-mono font-medium mb-2">
+            Pilot Access
+          </span>
+          <h3 class="text-lg font-bold text-white">Request Your Contract Risk Report</h3>
+          <p id="attachedFileName" class="text-xs text-slate-400 mt-1">
+            Join the pilot cohort to screen your next tender with verified clause citations.
           </p>
-        </section>
-      </main>
+        </div>
 
-      {/* 7. CONVERSION MODAL */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              transition={{ duration: 0.2 }}
-              className="relative w-full max-w-lg rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6 sm:p-8"
-            >
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 p-1 rounded-md"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              {!formSubmitted ? (
-                <>
-                  <div className="mb-6">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-mono font-medium mb-2">
-                      Pilot Validation Access
-                    </div>
-                    <h3 className="text-xl font-bold text-white">
-                      Request Your Contract Risk Report
-                    </h3>
-                    <p className="text-xs text-slate-400 mt-1">
-                      {droppedFileName ? (
-                        <span className="text-indigo-400 font-mono flex items-center gap-1 mt-1">
-                          <FileCheck className="w-3.5 h-3.5" />
-                          Attached: {droppedFileName}
-                        </span>
-                      ) : (
-                        "Join the pilot cohort to screen your next tender with verified clause citations."
-                      )}
-                    </p>
-                  </div>
-
-                  <form onSubmit={handleFormSubmit} className="space-y-4">
-                    <div>
-                      <label className="block text-xs font-mono text-slate-300 uppercase mb-1">
-                        Work Email
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="estimator@subcontractor-bau.de"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-mono text-slate-300 uppercase mb-1">
-                        Primary Trade (Gewerk)
-                      </label>
-                      <select
-                        value={formData.trade}
-                        onChange={(e) => setFormData({ ...formData, trade: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-sm text-white focus:outline-none focus:border-indigo-500"
-                      >
-                        <option value="HVAC">HVAC & Mechanical (TGA / Lüftung)</option>
-                        <option value="Drywall">Drywall & Interiors (Trockenbau)</option>
-                        <option value="Electrical">Electrical (Elektrotechnik)</option>
-                        <option value="Concrete">Structural Concrete (Rohbau / Beton)</option>
-                        <option value="Other">Other Specialized Trade</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-mono text-slate-300 uppercase mb-1">
-                        Monthly Tenders Bid
-                      </label>
-                      <select
-                        value={formData.volume}
-                        onChange={(e) => setFormData({ ...formData, volume: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-sm text-white focus:outline-none focus:border-indigo-500"
-                      >
-                        <option value="1-5">1 – 5 tenders / month</option>
-                        <option value="5-15">5 – 15 tenders / month</option>
-                        <option value="15+">15+ tenders / month</option>
-                      </select>
-                    </div>
-
-                    <button
-                      type="submit"
-                      className="w-full py-3 rounded-lg bg-indigo-600 hover:bg-indigo-500 font-semibold text-sm text-white shadow-lg shadow-indigo-600/30 transition-all active:scale-[0.99] mt-2 flex items-center justify-center gap-2"
-                    >
-                      <span>Request Risk Report (€0 Pilot Access)</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-
-                    <p className="text-[11px] text-slate-500 text-center font-mono mt-2">
-                      Limited to 15 active subcontractor estimators for pilot validation.
-                    </p>
-                  </form>
-                </>
-              ) : (
-                <div className="py-8 text-center space-y-4">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto">
-                    <CheckCircle2 className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-lg font-bold text-white">Pilot Request Received</h3>
-                  <p className="text-xs sm:text-sm text-slate-400 max-w-xs mx-auto">
-                    We've reserved your slot for <span className="text-indigo-400 font-mono">{formData.email}</span>. A risk auditor will reach out within 2 hours to confirm document processing.
-                  </p>
-                  <button
-                    onClick={() => {
-                      setIsModalOpen(false);
-                      setFormSubmitted(false);
-                      setDroppedFileName(null);
-                    }}
-                    className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition"
-                  >
-                    Close
-                  </button>
-                </div>
-              )}
-            </motion.div>
+        <form onsubmit="handleFormSubmit(event)" class="space-y-3.5">
+          <div>
+            <label class="block text-[11px] font-mono text-slate-300 uppercase mb-1">Work Email</label>
+            <input
+              type="email"
+              id="userEmail"
+              required
+              placeholder="estimator@subcontractor.de"
+              class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500"
+            />
           </div>
-        )}
-      </AnimatePresence>
+
+          <div>
+            <label class="block text-[11px] font-mono text-slate-300 uppercase mb-1">Trade (Gewerk)</label>
+            <select class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-indigo-500">
+              <option value="HVAC">HVAC & Mechanical (TGA / Lüftung)</option>
+              <option value="Drywall">Drywall & Interiors (Trockenbau)</option>
+              <option value="Electrical">Electrical (Elektrotechnik)</option>
+              <option value="Concrete">Structural Concrete (Rohbau / Beton)</option>
+              <option value="Other">Other Specialized Trade</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-mono text-slate-300 uppercase mb-1">Monthly Tenders Bid</label>
+            <select class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-indigo-500">
+              <option value="1-5">1 – 5 tenders / month</option>
+              <option value="5-15">5 – 15 tenders / month</option>
+              <option value="15+">15+ tenders / month</option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 font-semibold text-xs text-white shadow-lg shadow-indigo-600/30 transition mt-2 flex items-center justify-center gap-1.5"
+          >
+            <span>Request Risk Report (€0 Pilot Access)</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+
+          <p class="text-[10px] text-slate-500 text-center font-mono mt-2">
+            Limited to 15 active subcontractor estimators for pilot validation.
+          </p>
+        </form>
+      </div>
+
+      <!-- Success View -->
+      <div id="modalSuccess" class="hidden py-6 text-center space-y-3">
+        <div class="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto">
+          <i data-lucide="check-circle-2" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-base font-bold text-white">Pilot Request Received</h3>
+        <p class="text-xs text-slate-400 max-w-xs mx-auto">
+          Your spot has been reserved. A risk screening auditor will reach out to confirm document processing.
+        </p>
+        <button
+          onclick="closeModal()"
+          class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition"
+        >
+          Done
+        </button>
+      </div>
     </div>
-  );
-}
+  </div>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    const modal = document.getElementById('modal');
+    const modalForm = document.getElementById('modalForm');
+    const modalSuccess = document.getElementById('modalSuccess');
+    const attachedFileName = document.getElementById('attachedFileName');
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+
+    function openModal(fileName = null) {
+      modal.classList.remove('hidden');
+      modalForm.classList.remove('hidden');
+      modalSuccess.classList.add('hidden');
+      if (fileName) {
+        attachedFileName.innerHTML = `<span class="text-indigo-400 font-mono">Attached: ${fileName}</span>`;
+      } else {
+        attachedFileName.innerText = 'Join the pilot cohort to screen your next tender with verified clause citations.';
+      }
+      lucide.createIcons();
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+    }
+
+    // Drag & Drop Handlers
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dropzone-active');
+    });
+
+    ['dragleave', 'dragend'].forEach(type => {
+      dropzone.addEventListener(type, () => {
+        dropzone.classList.remove('dropzone-active');
+      });
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dropzone-active');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        openModal(e.dataTransfer.files[0].name);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        openModal(e.target.files[0].name);
+      }
+    });
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      modalForm.classList.add('hidden');
+      modalSuccess.classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    // Close on background click
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  </script>
+</body>
+</html>
