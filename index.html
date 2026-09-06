@@ -1,394 +1,1001 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TenderRisk AI — Pre-Bid Risk Screening for Subcontractors</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <title>TenderRisk AI — Subcontractor Tender & Penalty Screener</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    @keyframes pulse-border {
-      0%, 100% { border-color: rgba(245, 158, 11, 0.3); }
-      50% { border-color: rgba(245, 158, 11, 0.8); }
+    :root {
+      --bg: #FAFAFB;
+      --surface: #FFFFFF;
+      --surface-subtle: #F4F5F7;
+      --border: #E4E7EC;
+      --border-focus: #B2CCFF;
+      --text-main: #0C111D;
+      --text-muted: #475467;
+      --text-light: #98A2B3;
+      --brand-blue: #0F52FF;
+      --brand-blue-hover: #003ECC;
+      --brand-blue-light: #EFF4FF;
+      --danger-red: #D92D20;
+      --danger-bg: #FEF3F2;
+      --danger-border: #FECDCA;
+      --warning-amber: #B54708;
+      --warning-bg: #FFFAEB;
+      --success-green: #039855;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --shadow-sm: 0px 1px 2px rgba(16, 24, 40, 0.05);
+      --shadow-md: 0px 4px 8px -2px rgba(16, 24, 40, 0.06), 0px 2px 4px -2px rgba(16, 24, 40, 0.04);
+      --shadow-lg: 0px 12px 24px -4px rgba(16, 24, 40, 0.08), 0px 4px 10px -2px rgba(16, 24, 40, 0.03);
     }
-    .dropzone-active {
-      border-color: #f59e0b !important;
-      background-color: rgba(245, 158, 11, 0.05) !important;
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* PRELOADER INTRO */
+    #preloader {
+      position: fixed;
+      inset: 0;
+      background: #FFFFFF;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.55s;
+    }
+    .preloader-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .preloader-bar {
+      width: 140px;
+      height: 2px;
+      background: var(--border);
+      margin-top: 20px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 99px;
+    }
+    .preloader-progress {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0%;
+      background: var(--brand-blue);
+      animation: loadPulse 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes loadPulse {
+      0% { width: 0%; }
+      70% { width: 85%; }
+      100% { width: 100%; }
+    }
+
+    /* NAVIGATION */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(250, 250, 251, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-container {
+      max-width: 1160px;
+      margin: 0 auto;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 700;
+      font-size: 19px;
+      letter-spacing: -0.02em;
+    }
+    .brand-symbol {
+      width: 28px;
+      height: 28px;
+      background: var(--text-main);
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+    }
+    .brand-ai-tag {
+      background: var(--brand-blue-light);
+      color: var(--brand-blue);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.15s ease;
+    }
+    .nav-links a:hover {
+      color: var(--text-main);
+    }
+    .btn-nav {
+      background: var(--text-main);
+      color: #FFFFFF;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    .btn-nav:hover {
+      background: #232a36;
+    }
+
+    /* CONTAINERS & SECTIONS */
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* HERO */
+    .hero {
+      padding: 72px 0 48px;
+      text-align: center;
+    }
+    .badge-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--brand-blue);
+      border-radius: 50%;
+    }
+    h1 {
+      font-size: clamp(34px, 4.8vw, 54px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: var(--text-main);
+      max-width: 880px;
+      margin: 0 auto 20px;
+    }
+    .hero-sub {
+      font-size: clamp(16px, 1.8vw, 19px);
+      color: var(--text-muted);
+      max-width: 660px;
+      margin: 0 auto 40px;
+      font-weight: 400;
+    }
+
+    /* UPLOAD COMPONENT */
+    .dropzone-card {
+      background: var(--surface);
+      border: 2px dashed #D0D5DD;
+      border-radius: 16px;
+      padding: 44px 24px;
+      max-width: 720px;
+      margin: 0 auto 48px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+    }
+    .dropzone-card:hover, .dropzone-card.dragover {
+      border-color: var(--brand-blue);
+      background: #FDFEFF;
+      box-shadow: 0 0 0 4px rgba(15, 82, 255, 0.08);
+    }
+    .drop-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      background: var(--brand-blue-light);
+      color: var(--brand-blue);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .drop-heading {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+    .drop-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+    }
+    .demo-trigger-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      transition: all 0.15s ease;
+    }
+    .demo-trigger-btn:hover {
+      background: #EAECEF;
+    }
+
+    /* SCANNER SIMULATION STATE */
+    #scannerState {
+      display: none;
+      max-width: 720px;
+      margin: 0 auto 48px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: left;
+      box-shadow: var(--shadow-md);
+    }
+    .scanner-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .scanner-progress-bar {
+      height: 6px;
+      background: var(--surface-subtle);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .scanner-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--brand-blue);
+      transition: width 0.3s ease;
+    }
+    .scanner-log {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* AUDIT RESULT PREVIEW */
+    .audit-preview {
+      max-width: 820px;
+      margin: 0 auto 80px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      text-align: left;
+    }
+    .audit-topbar {
+      background: #11151F;
+      color: #FFFFFF;
+      padding: 14px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+    .audit-topbar-title {
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .audit-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #98A2B3;
+    }
+    .audit-body {
+      padding: 24px;
+    }
+    .audit-finding-card {
+      border: 1px solid var(--danger-border);
+      background: var(--danger-bg);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+    .audit-badge-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .badge-critical {
+      background: var(--danger-red);
+      color: #FFFFFF;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .audit-confidence {
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: var(--danger-red);
+      font-weight: 600;
+    }
+    .audit-finding-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #912018;
+      margin-bottom: 6px;
+    }
+    .audit-cite {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .audit-cite span {
+      color: var(--text-main);
+      text-decoration: underline;
+    }
+    .source-quote {
+      background: #FFFFFF;
+      border-left: 3px solid var(--danger-red);
+      padding: 12px 16px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      color: #2D3139;
+      margin-bottom: 12px;
+    }
+    .audit-note {
+      font-size: 13px;
+      color: #55160C;
+    }
+
+    /* FAIL LOUDLY BANNER */
+    .fail-loudly-box {
+      background: var(--warning-bg);
+      border: 1px solid #FEDF89;
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--warning-amber);
+    }
+    .fail-loudly-box strong {
+      color: #7A271A;
+    }
+
+    /* HOW IT WORKS / COMPARISON */
+    .section-title-wrap {
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 48px;
+    }
+    .section-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .section-sub {
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: var(--shadow-sm);
+    }
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text-main);
+      margin-bottom: 18px;
+    }
+    .step-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .step-card p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* THE ESTIMATOR DILEMMA */
+    .dilemma-section {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 44px;
+      margin-bottom: 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+    @media (max-width: 768px) {
+      .dilemma-section {
+        grid-template-columns: 1fr;
+        padding: 28px;
+      }
+    }
+    .dilemma-item {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .dilemma-bullet {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #FEE4E2;
+      color: var(--danger-red);
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* VALIDATION PILOT TEST FORM SECTION */
+    .pilot-cta-section {
+      background: #0E121B;
+      color: #FFFFFF;
+      border-radius: 20px;
+      padding: 60px 40px;
+      margin-bottom: 80px;
+      text-align: center;
+    }
+    .pilot-cta-section h2 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .pilot-cta-section p {
+      color: #98A2B3;
+      font-size: 16px;
+      max-width: 580px;
+      margin: 0 auto 36px;
+    }
+
+    .form-wrapper {
+      max-width: 520px;
+      margin: 0 auto;
+      background: #181F2E;
+      border: 1px solid #293040;
+      border-radius: 12px;
+      padding: 28px;
+      text-align: left;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #D0D5DD;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 10px 14px;
+      background: #0D121D;
+      border: 1px solid #333D52;
+      border-radius: 8px;
+      color: #FFFFFF;
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--brand-blue);
+    }
+    .form-submit-btn {
+      width: 100%;
+      background: var(--brand-blue);
+      color: #FFFFFF;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 8px;
+    }
+    .form-submit-btn:hover {
+      background: var(--brand-blue-hover);
+    }
+    .pilot-guarantee {
+      margin-top: 14px;
+      font-size: 12px;
+      color: #667085;
+      text-align: center;
+    }
+
+    /* SUCCESS STATE */
+    #pilotSuccess {
+      display: none;
+      background: #16241D;
+      border: 1px solid #1F452E;
+      padding: 24px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    #pilotSuccess h4 {
+      color: #38D386;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    #pilotSuccess p {
+      font-size: 14px;
+      color: #C1E1CE;
+      margin: 0;
+    }
+
+    /* LEGAL BOUNDARY / FOOTER */
+    .legal-boundary {
+      border-top: 1px solid var(--border);
+      padding: 40px 0 60px;
+      font-size: 12px;
+      color: var(--text-light);
+      line-height: 1.7;
+    }
+    .legal-boundary strong {
+      color: var(--text-muted);
+    }
+    .footer-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    @media (max-width: 600px) {
+      .footer-flex {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
     }
   </style>
 </head>
-<body class="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white font-sans antialiased relative overflow-x-hidden">
+<body>
 
-  <!-- Background Grid & Glow -->
-  <div class="fixed inset-0 bg-[linear-gradient(to_right,#1e293b15_1px,transparent_1px),linear-gradient(to_bottom,#1e293b15_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] pointer-events-none"></div>
-  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[900px] h-[350px] bg-gradient-to-b from-indigo-600/15 via-amber-500/5 to-transparent blur-3xl pointer-events-none"></div>
-
-  <!-- 1. NAVIGATION BAR -->
-  <header class="sticky top-0 z-40 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-600 to-slate-900 border border-indigo-500/40 flex items-center justify-center shadow-inner">
-          <i data-lucide="shield-alert" class="w-5 h-5 text-indigo-400"></i>
-        </div>
-        <span class="font-bold tracking-tight text-lg text-white flex items-center gap-1.5">
-          TenderRisk <span class="text-indigo-400">AI</span>
-        </span>
-        <span class="text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium">
-          DACH Pilot
-        </span>
+  <!-- PRELOADER (Per MasterPrompt Spec: subtle transition into UI) -->
+  <div id="preloader">
+    <div class="preloader-logo">
+      <div class="brand-symbol">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
       </div>
-
-      <div class="flex items-center space-x-4">
-        <a href="#how-it-works" class="text-xs sm:text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors hidden sm:inline-block">
-          How it Works
-        </a>
-        <button onclick="openModal()" class="px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/25 transition-all border border-indigo-400/30">
-          Run Free Audit
-        </button>
-      </div>
+      <span>TenderRisk</span>
+      <span class="brand-ai-tag">AI</span>
     </div>
-  </header>
-
-  <main class="max-w-5xl mx-auto px-4 sm:px-6 pt-12 pb-24 relative z-10">
-
-    <!-- 2. HERO SECTION -->
-    <section class="text-center max-w-3xl mx-auto mb-16">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300 mb-6 shadow-sm">
-        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
-        <span>Commercial Construction Risk Screening</span>
-      </div>
-
-      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight sm:leading-[1.15]">
-        Spot fatal contract penalties <br class="hidden sm:inline" />
-        <span class="bg-gradient-to-r from-amber-400 via-amber-300 to-indigo-400 bg-clip-text text-transparent">
-          before you waste 20 hours estimating.
-        </span>
-      </h1>
-
-      <p class="mt-6 text-sm sm:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed">
-        A defensive pre-bid audit for HVAC, drywall, electrical, and concrete subcontractors. Extract liquidated damages, penalty clauses, and liability traps in seconds—linked directly to the page.
-      </p>
-
-      <!-- Central Dropzone -->
-      <div class="mt-10 max-w-xl mx-auto">
-        <div
-          id="dropzone"
-          class="relative cursor-pointer group rounded-2xl border-2 border-dashed border-slate-800 hover:border-slate-700 bg-slate-900/60 p-8 transition-all hover:bg-slate-900/90 text-center"
-        >
-          <input type="file" id="fileInput" accept=".pdf" class="hidden" />
-
-          <div class="flex flex-col items-center justify-center space-y-4">
-            <div class="w-14 h-14 rounded-xl bg-slate-800/90 border border-slate-700/80 flex items-center justify-center group-hover:scale-105 group-hover:border-amber-500/40 transition-transform">
-              <i data-lucide="upload-cloud" class="w-7 h-7 text-indigo-400 group-hover:text-amber-400 transition-colors"></i>
-            </div>
-            <div>
-              <p class="text-sm sm:text-base font-semibold text-slate-200 group-hover:text-white">
-                Drag & drop tender PDF bundle <span class="text-xs font-normal text-slate-400 font-mono">(Up to 200 pages)</span>
-              </p>
-              <p class="text-xs text-slate-500 mt-1 flex items-center justify-center gap-1.5">
-                <i data-lucide="lock" class="w-3 h-3 text-slate-400"></i>
-                Encrypted & confidential. Analyzed for VOB/DIN & commercial liability.
-              </p>
-            </div>
-            <button
-              type="button"
-              onclick="document.getElementById('fileInput').click()"
-              class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white tracking-wide transition shadow-md shadow-indigo-600/30"
-            >
-              Upload Tender for Risk Report
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. LIVE AUDIT PREVIEW CARD -->
-    <section class="max-w-3xl mx-auto mb-20">
-      <div class="flex items-center justify-between mb-3 px-1">
-        <div class="flex items-center gap-2">
-          <i data-lucide="eye" class="w-4 h-4 text-indigo-400"></i>
-          <span class="text-xs font-mono uppercase tracking-wider text-slate-400">Sample Live Inspection Preview</span>
-        </div>
-        <span class="text-xs font-mono text-emerald-400 flex items-center gap-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          Audit Complete
-        </span>
-      </div>
-
-      <div class="rounded-2xl border border-slate-800 bg-slate-900/90 overflow-hidden shadow-2xl">
-        <div class="border-b border-slate-800/80 px-5 py-4 bg-slate-950/40 flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <i data-lucide="file-text" class="w-5 h-5 text-indigo-400"></i>
-            <div>
-              <h3 class="text-sm font-semibold text-slate-200">Bid Risk Audit — Spec Package #402-B</h3>
-              <p class="text-xs font-mono text-slate-500">Hospital Phase II • Gewerke: Lüftungs- & Klimatechnik</p>
-            </div>
-          </div>
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
-            <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
-            HIGH RISK FLAGGED
-          </span>
-        </div>
-
-        <div class="p-6 space-y-5">
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
-            <div class="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800">
-              <span class="text-[11px] font-mono text-slate-500 block uppercase">Finding</span>
-              <span class="text-sm font-semibold text-slate-200">Liquidated Damages</span>
-            </div>
-            <div class="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800">
-              <span class="text-[11px] font-mono text-slate-500 block uppercase">Financial Exposure</span>
-              <span class="text-sm font-semibold text-amber-400">€10,000 / calendar day</span>
-              <span class="text-[10px] text-slate-400 block mt-0.5">(Capped at 15% contract sum)</span>
-            </div>
-            <div class="p-3.5 rounded-lg bg-slate-950/60 border border-slate-800">
-              <span class="text-[11px] font-mono text-slate-500 block uppercase">Source Citation</span>
-              <span class="text-sm font-semibold text-slate-200">Section 12.4, Page 147</span>
-              <span class="text-[10px] text-slate-400 font-mono block mt-0.5">"Verzugsstrafen & Pönalen"</span>
-            </div>
-          </div>
-
-          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800/80">
-            <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-2">
-              <span>EXCERPT MATCH FROM SPECIFICATION PDF:</span>
-              <span class="text-indigo-400">Confidence: 96%</span>
-            </div>
-            <blockquote class="text-xs sm:text-sm font-mono text-slate-300 border-l-2 border-amber-400 pl-3 italic bg-slate-900/30 py-1.5">
-              "...subcontractor shall forfeit 0.2% of the net contract value per business day of delay in meeting the interim cooling readiness milestones, capped at a maximum of 15% of the gross order total. Weather delays under VOB/B § 6 Abs. 2 shall require formal notarized proof within 24 hours..."
-            </blockquote>
-          </div>
-
-          <div class="flex flex-wrap items-center justify-between gap-3 text-xs pt-1 text-slate-400 border-t border-slate-800/60">
-            <div class="flex items-center gap-2">
-              <div class="w-4 h-4 rounded bg-indigo-950 border border-indigo-500 flex items-center justify-center text-indigo-400">
-                <i data-lucide="check" class="w-3 h-3"></i>
-              </div>
-              <span>Human Verification Flag: <strong class="text-slate-200">Verify against schedule milestones (Page 189)</strong></span>
-            </div>
-            <span class="font-mono text-[11px] text-slate-500">DIN 18299 & VOB compliant checklist</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. THREE-STEP WORKFLOW -->
-    <section id="how-it-works" class="max-w-4xl mx-auto mb-20 scroll-mt-20">
-      <div class="text-center mb-10">
-        <span class="text-xs font-mono uppercase tracking-widest text-indigo-400">Defensive Pre-Bid Protocol</span>
-        <h2 class="text-2xl font-bold text-white mt-1">How TenderRisk AI protects your margins</h2>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="p-6 rounded-xl bg-slate-900/50 border border-slate-800">
-          <div class="w-8 h-8 rounded-lg bg-slate-800 text-indigo-400 font-mono text-xs font-bold flex items-center justify-center mb-3 border border-slate-700">01</div>
-          <h3 class="text-sm font-bold text-white mb-2">1. Shred the Bundle</h3>
-          <p class="text-xs text-slate-400 leading-relaxed">Upload massive 200-page tender packages, VOB specifications, and subcontractor terms without reading every line first.</p>
-        </div>
-
-        <div class="p-6 rounded-xl bg-slate-900/50 border border-slate-800">
-          <div class="w-8 h-8 rounded-lg bg-slate-800 text-amber-400 font-mono text-xs font-bold flex items-center justify-center mb-3 border border-slate-700">02</div>
-          <h3 class="text-sm font-bold text-white mb-2">2. Screen Penalty Traps</h3>
-          <p class="text-xs text-slate-400 leading-relaxed">Construction-specific AI detects delay penalties, unfeasible milestones, and retention traps automatically.</p>
-        </div>
-
-        <div class="p-6 rounded-xl bg-slate-900/50 border border-slate-800">
-          <div class="w-8 h-8 rounded-lg bg-slate-800 text-emerald-400 font-mono text-xs font-bold flex items-center justify-center mb-3 border border-slate-700">03</div>
-          <h3 class="text-sm font-bold text-white mb-2">3. Decide Go / No-Go</h3>
-          <p class="text-xs text-slate-400 leading-relaxed">Make fast Go/No-Go decisions before spending estimating budget, backed by exact page citations.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5. PILOT PRICING ANCHOR -->
-    <section class="max-w-md mx-auto mb-16">
-      <div class="p-6 rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-indigo-500/30 text-center shadow-xl relative">
-        <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-indigo-600 text-[10px] font-semibold text-white uppercase tracking-wider">
-          Pilot Cohort Offer
-        </div>
-        <h3 class="text-lg font-bold text-white mt-1">Concierge Pre-Bid Audit</h3>
-        <div class="my-3">
-          <span class="text-3xl font-extrabold text-white">€0</span>
-          <span class="text-xs text-slate-400 ml-2 line-through font-mono">Standard €29/tender</span>
-        </div>
-        <p class="text-xs text-slate-300 mb-5 leading-relaxed">
-          We screen your active tender bundle using our risk model with human verification in exchange for your feedback.
-        </p>
-        <button
-          onclick="openModal()"
-          class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2"
-        >
-          <span>Claim Pilot Audit Spot</span>
-          <i data-lucide="arrow-right" class="w-4 h-4"></i>
-        </button>
-        <p class="text-[11px] text-amber-400 font-mono mt-3 flex items-center justify-center gap-1">
-          <i data-lucide="clock" class="w-3.5 h-3.5"></i>
-          Limited to 15 active subcontractor estimators
-        </p>
-      </div>
-    </section>
-
-    <!-- 6. TRUST & LEGAL DISCLAIMER -->
-    <section class="max-w-2xl mx-auto border-t border-slate-800/80 pt-6 text-center">
-      <div class="flex items-center justify-center gap-2 mb-2 text-slate-400">
-        <i data-lucide="scale" class="w-4 h-4"></i>
-        <span class="text-xs font-mono uppercase tracking-wider font-semibold">Strict Safeguards & Confidentiality</span>
-      </div>
-      <p class="text-xs text-slate-500 leading-relaxed">
-        Built for decision intelligence, not legal replacement. Every finding is verifiable with source page links. Zero data retention for uploaded files.
-      </p>
-    </section>
-  </main>
-
-  <!-- 7. CONVERSION MODAL -->
-  <div id="modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-    <div class="relative w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl p-6">
-      <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-200">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-
-      <!-- Form View -->
-      <div id="modalForm">
-        <div class="mb-5">
-          <span class="inline-block px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[11px] font-mono font-medium mb-2">
-            Pilot Access
-          </span>
-          <h3 class="text-lg font-bold text-white">Request Your Contract Risk Report</h3>
-          <p id="attachedFileName" class="text-xs text-slate-400 mt-1">
-            Join the pilot cohort to screen your next tender with verified clause citations.
-          </p>
-        </div>
-
-        <form onsubmit="handleFormSubmit(event)" class="space-y-3.5">
-          <div>
-            <label class="block text-[11px] font-mono text-slate-300 uppercase mb-1">Work Email</label>
-            <input
-              type="email"
-              id="userEmail"
-              required
-              placeholder="estimator@subcontractor.de"
-              class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500"
-            />
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-mono text-slate-300 uppercase mb-1">Trade (Gewerk)</label>
-            <select class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-indigo-500">
-              <option value="HVAC">HVAC & Mechanical (TGA / Lüftung)</option>
-              <option value="Drywall">Drywall & Interiors (Trockenbau)</option>
-              <option value="Electrical">Electrical (Elektrotechnik)</option>
-              <option value="Concrete">Structural Concrete (Rohbau / Beton)</option>
-              <option value="Other">Other Specialized Trade</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-[11px] font-mono text-slate-300 uppercase mb-1">Monthly Tenders Bid</label>
-            <select class="w-full px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white focus:outline-none focus:border-indigo-500">
-              <option value="1-5">1 – 5 tenders / month</option>
-              <option value="5-15">5 – 15 tenders / month</option>
-              <option value="15+">15+ tenders / month</option>
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 font-semibold text-xs text-white shadow-lg shadow-indigo-600/30 transition mt-2 flex items-center justify-center gap-1.5"
-          >
-            <span>Request Risk Report (€0 Pilot Access)</span>
-            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-          </button>
-
-          <p class="text-[10px] text-slate-500 text-center font-mono mt-2">
-            Limited to 15 active subcontractor estimators for pilot validation.
-          </p>
-        </form>
-      </div>
-
-      <!-- Success View -->
-      <div id="modalSuccess" class="hidden py-6 text-center space-y-3">
-        <div class="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto">
-          <i data-lucide="check-circle-2" class="w-6 h-6"></i>
-        </div>
-        <h3 class="text-base font-bold text-white">Pilot Request Received</h3>
-        <p class="text-xs text-slate-400 max-w-xs mx-auto">
-          Your spot has been reserved. A risk screening auditor will reach out to confirm document processing.
-        </p>
-        <button
-          onclick="closeModal()"
-          class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition"
-        >
-          Done
-        </button>
-      </div>
+    <div class="preloader-bar">
+      <div class="preloader-progress"></div>
     </div>
   </div>
 
+  <!-- NAVIGATION -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="brand-mark">
+        <div class="brand-symbol">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+        </div>
+        <span>TenderRisk</span>
+        <span class="brand-ai-tag">AI</span>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#how-it-works">Methodology</a>
+        <a href="#audit-demo">Audit Example</a>
+        <a href="#pilot-signup" class="btn-nav">Request Pilot Review (€29)</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container">
+        <div class="badge-wrap">
+          <span class="badge-dot"></span>
+          <span>Decision Support for Drywall, HVAC, Electrical & Concrete Trades</span>
+        </div>
+
+        <h1>Spotlight Contract Penalties Before You Waste 20 Hours Estimating.</h1>
+        <p class="hero-sub">
+          A self-serve document screener that extracts hidden liquidated damages, impossible milestones, and liability traps in 90 seconds. Every finding is linked to the exact page and clause.
+        </p>
+
+        <!-- UPLOAD DROPZONE -->
+        <div class="dropzone-card" id="dropzoneCard" onclick="triggerDemoScan()">
+          <input type="file" id="fileInput" style="display:none;" accept=".pdf" onchange="triggerDemoScan()" />
+          <div class="drop-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <div class="drop-heading">Drag and drop your tender PDF bundle here</div>
+          <div class="drop-sub">Accepts public & commercial tender specifications (up to 400+ pages)</div>
+          <button type="button" class="demo-trigger-btn" onclick="event.stopPropagation(); triggerDemoScan();">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Click to load a live sample tender
+          </button>
+        </div>
+
+        <!-- SCANNING STATE (Hidden until interaction) -->
+        <div id="scannerState">
+          <div class="scanner-header">
+            <strong style="font-size: 14px;">Screening: Hospital_Extension_Phase2_Contract.pdf</strong>
+            <span id="scanPercent" style="font-family: var(--font-mono); font-size: 13px; color: var(--brand-blue);">0%</span>
+          </div>
+          <div class="scanner-progress-bar">
+            <div class="scanner-progress-fill" id="scanProgressFill"></div>
+          </div>
+          <div class="scanner-log" id="scannerLog">Extracting text layers & DIN / VOB clause structures...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIVE SAMPLE AUDIT REPORT -->
+    <section class="container" id="audit-demo">
+      <div class="audit-preview">
+        <div class="audit-topbar">
+          <div class="audit-topbar-title">
+            <span>AUDIT OUTPUT: Tender Risk Assessment</span>
+            <span style="font-weight:400; opacity: 0.6;">| Target: Commercial Renovation</span>
+          </div>
+          <div class="audit-status">
+            <span>Analyzed 248 Pages in 42s</span>
+          </div>
+        </div>
+
+        <div class="audit-body">
+          <!-- Flagged Finding 1 -->
+          <div class="audit-finding-card">
+            <div class="audit-badge-row">
+              <span class="badge-critical">HIGH RISK — Liquidated Damages</span>
+              <span class="audit-confidence">Confidence: 96%</span>
+            </div>
+            <div class="audit-finding-title">€10,000 per calendar day (No aggregate cap)</div>
+            <div class="audit-cite">Found on: <span>Page 147 — Section 12.4</span> • Potential uncapped delay exposure</div>
+            
+            <div class="source-quote">
+              “12.4 Delay Damages: In the event of failure to achieve Substantial Completion by the Milestone Date, the Subcontractor shall pay to the Principal liquidated damages of €10,000 per calendar day of delay. These damages shall apply without ceiling or cap.”
+            </div>
+            <div class="audit-note">
+              <strong>Action required:</strong> Verify against contract schedule. At typical trade margins, a 4-day delay wipes out estimated project profitability.
+            </div>
+          </div>
+
+          <!-- Fail-Loudly Banner -->
+          <div class="fail-loudly-box">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <div>
+              <strong>Audit Integrity Notice ("Fail Loudly" Rule):</strong> Annex C (Structural Specifications) contains 3 low-resolution scanned scans with incomplete OCR certainty. Do not assume zero risk exists in Annex C without manual inspection.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE PROBLEM / ASYMMETRIC VALUE -->
+    <section class="container" id="how-it-works">
+      <div class="section-title-wrap">
+        <h2 class="section-title">The Estimating Asymmetry</h2>
+        <p class="section-sub">Before your estimators spend 20 hours doing takeoffs, know if the contract is toxic.</p>
+      </div>
+
+      <div class="dilemma-section">
+        <div>
+          <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 16px;">The Traditional Estimating Trap</h3>
+          <div class="dilemma-item">
+            <div class="dilemma-bullet">✕</div>
+            <p style="font-size: 14px; color: var(--text-muted);">Estimators spend 15–25 hours doing material takeoffs before anyone reads Section 18's indemnification clause.</p>
+          </div>
+          <div class="dilemma-item">
+            <div class="dilemma-bullet">✕</div>
+            <p style="font-size: 14px; color: var(--text-muted);">Hidden €10k/day penalty clauses or unrealistic 30-day warranty retentions get noticed <em>after</em> winning the bid.</p>
+          </div>
+          <div class="dilemma-item">
+            <div class="dilemma-bullet">✕</div>
+            <p style="font-size: 14px; color: var(--text-muted);">Legal reviews cost €1,500+ and take 4 business days—impossible for routine tender screening.</p>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 16px;">With TenderRisk AI</h3>
+          <div class="dilemma-item">
+            <div style="width:20px;height:20px;border-radius:50%;background:#D1FADF;color:#027A48;display:grid;place-items:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:2px;">✓</div>
+            <p style="font-size: 14px; color: var(--text-muted);"><strong>Fast Bid / No-Bid Filter:</strong> Identify contractual deal-breakers in under 90 seconds.</p>
+          </div>
+          <div class="dilemma-item">
+            <div style="width:20px;height:20px;border-radius:50%;background:#D1FADF;color:#027A48;display:grid;place-items:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:2px;">✓</div>
+            <p style="font-size: 14px; color: var(--text-muted);"><strong>Evidence-Linked Findings:</strong> Direct page and clause anchors. No generic AI summaries or vague interpretations.</p>
+          </div>
+          <div class="dilemma-item">
+            <div style="width:20px;height:20px;border-radius:50%;background:#D1FADF;color:#027A48;display:grid;place-items:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:2px;">✓</div>
+            <p style="font-size: 14px; color: var(--text-muted);"><strong>Scope & Penalty Auditing:</strong> Screen for liquidated damages, retention bonds, warranties, and scope ambiguity.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3-STEP PIPELINE -->
+      <div class="grid-3">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h3>Bundle Ingestion</h3>
+          <p>Drop the entire tender ZIP or PDF package. Automatic segmentation parses contract forms, special conditions, and bills of quantities.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <h3>Taxonomy Detection</h3>
+          <p>Trained risk filters scan for penalty thresholds, payment milestones, liability pass-throughs, and standard deviations from VOB/FIDIC norms.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h3>Evidence Audit</h3>
+          <p>Receive a structured executive report pinpointing exact page numbers and verbatim excerpts so your team can verify findings in seconds.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- VALIDATION PILOT TEST FORM -->
+    <section class="container" id="pilot-signup">
+      <div class="pilot-cta-section">
+        <h2>Screen Your Next Tender With Us</h2>
+        <p>
+          We are currently offering concierge manual risk audits for selected German and European trade subcontractors at an early validation price of €29 per tender package.
+        </p>
+
+        <div class="form-wrapper">
+          <form id="pilotForm" onsubmit="handlePilotSubmit(event)">
+            <div class="form-group">
+              <label for="fullName">Your Name</label>
+              <input type="text" id="fullName" placeholder="e.g. Thomas Müller" required />
+            </div>
+
+            <div class="form-group">
+              <label for="companyName">Company & Trade</label>
+              <input type="text" id="companyName" placeholder="e.g. Müller HVAC Solutions GmbH" required />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Work Email</label>
+              <input type="email" id="email" placeholder="t.mueller@example.de" required />
+            </div>
+
+            <div class="form-group">
+              <label for="tenderVolume">Approx. Tenders Priced Monthly</label>
+              <select id="tenderVolume" required>
+                <option value="" disabled selected>Select frequency</option>
+                <option value="1-3">1 – 3 tenders / month</option>
+                <option value="4-10">4 – 10 tenders / month</option>
+                <option value="11+">More than 10 tenders / month</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="pilotModel">Validation Pilot Request</label>
+              <select id="pilotModel">
+                <option value="concierge-29">Screen 1 real tender now (€29 pilot test)</option>
+                <option value="waitlist-saas">Notify me when automated self-serve launches</option>
+              </select>
+            </div>
+
+            <button type="submit" class="form-submit-btn">Request Tender Risk Audit</button>
+            <p class="pilot-guarantee">Strict NDA confidentiality. We sign before you send files.</p>
+          </form>
+
+          <div id="pilotSuccess">
+            <h4>Request Received</h4>
+            <p>Thank you. We will contact you within 4 business hours with our mutual NDA and upload instructions for your tender bundle.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LEGAL & POSITIONING DISCLAIMER (MasterPrompt Spec: Clear separation from legal advice) -->
+    <section class="container legal-boundary">
+      <p>
+        <strong>Legal & Decision-Support Notice:</strong> TenderRisk AI provides AI-assisted contract screening and decision-support to help estimators identify commercial risk factors prior to bidding. TenderRisk AI is not a law firm, does not provide legal advice, and does not replace qualified independent legal review. All findings are anchored directly to source documents and must be manually verified by the user against original tender contracts.
+      </p>
+      <div class="footer-flex">
+        <span>© 2026 TenderRisk AI. Built for construction subcontractors.</span>
+        <span>DACH / European Subcontractor Risk Screener</span>
+      </div>
+    </section>
+  </main>
+
   <script>
-    // Initialize Lucide Icons
-    lucide.createIcons();
-
-    const modal = document.getElementById('modal');
-    const modalForm = document.getElementById('modalForm');
-    const modalSuccess = document.getElementById('modalSuccess');
-    const attachedFileName = document.getElementById('attachedFileName');
-    const dropzone = document.getElementById('dropzone');
-    const fileInput = document.getElementById('fileInput');
-
-    function openModal(fileName = null) {
-      modal.classList.remove('hidden');
-      modalForm.classList.remove('hidden');
-      modalSuccess.classList.add('hidden');
-      if (fileName) {
-        attachedFileName.innerHTML = `<span class="text-indigo-400 font-mono">Attached: ${fileName}</span>`;
-      } else {
-        attachedFileName.innerText = 'Join the pilot cohort to screen your next tender with verified clause citations.';
-      }
-      lucide.createIcons();
-    }
-
-    function closeModal() {
-      modal.classList.add('hidden');
-    }
-
-    // Drag & Drop Handlers
-    dropzone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropzone.classList.add('dropzone-active');
+    // PRELOADER TRANSITION
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const preloader = document.getElementById('preloader');
+        preloader.style.opacity = '0';
+        setTimeout(() => {
+          preloader.style.visibility = 'hidden';
+        }, 550);
+      }, 700);
     });
 
-    ['dragleave', 'dragend'].forEach(type => {
-      dropzone.addEventListener(type, () => {
-        dropzone.classList.remove('dropzone-active');
+    // DRAG AND DROP VISUAL FEEDBACK
+    const dropzone = document.getElementById('dropzoneCard');
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.add('dragover');
       });
     });
-
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove('dragover');
+      });
+    });
     dropzone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropzone.classList.remove('dropzone-active');
-      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-        openModal(e.dataTransfer.files[0].name);
-      }
+      triggerDemoScan();
     });
 
-    fileInput.addEventListener('change', (e) => {
-      if (e.target.files && e.target.files[0]) {
-        openModal(e.target.files[0].name);
-      }
-    });
+    // SIMULATE TENDER SCAN FLOW
+    function triggerDemoScan() {
+      const dropzone = document.getElementById('dropzoneCard');
+      const scanner = document.getElementById('scannerState');
+      const progressBar = document.getElementById('scanProgressFill');
+      const progressText = document.getElementById('scanPercent');
+      const log = document.getElementById('scannerLog');
+      const auditDemo = document.getElementById('audit-demo');
 
-    function handleFormSubmit(e) {
-      e.preventDefault();
-      modalForm.classList.add('hidden');
-      modalSuccess.classList.remove('hidden');
-      lucide.createIcons();
+      dropzone.style.display = 'none';
+      scanner.style.display = 'block';
+
+      const steps = [
+        { pct: 25, msg: "Extracting 248 pages & section markers..." },
+        { pct: 55, msg: "Cross-checking liquidated damages & penalty thresholds against VOB/B..." },
+        { pct: 85, msg: "Auditing retention bonds, indemnities, and warranty clauses..." },
+        { pct: 100, msg: "Done! 1 critical risk and 1 OCR warning flagged." }
+      ];
+
+      let stepIndex = 0;
+      const interval = setInterval(() => {
+        if (stepIndex < steps.length) {
+          progressBar.style.width = steps[stepIndex].pct + '%';
+          progressText.innerText = steps[stepIndex].pct + '%';
+          log.innerText = steps[stepIndex].msg;
+          stepIndex++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => {
+            scanner.style.display = 'none';
+            dropzone.style.display = 'block';
+            auditDemo.scrollIntoView({ behavior: 'smooth' });
+          }, 600);
+        }
+      }, 550);
     }
 
-    // Close on background click
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
+    // FORM SUBMISSION (Saves to localStorage to measure demand)
+    function handlePilotSubmit(event) {
+      event.preventDefault();
+      const leadData = {
+        name: document.getElementById('fullName').value,
+        company: document.getElementById('companyName').value,
+        email: document.getElementById('email').value,
+        volume: document.getElementById('tenderVolume').value,
+        pilotChoice: document.getElementById('pilotModel').value,
+        timestamp: new Date().toISOString()
+      };
+
+      // Store in local storage for lean demand tracking
+      const existing = JSON.parse(localStorage.getItem('tender_risk_leads') || '[]');
+      existing.push(leadData);
+      localStorage.setItem('tender_risk_leads', JSON.stringify(existing));
+
+      // Display clean success state
+      document.getElementById('pilotForm').style.display = 'none';
+      document.getElementById('pilotSuccess').style.display = 'block';
+    }
   </script>
 </body>
 </html>
