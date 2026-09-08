@@ -2244,7 +2244,7 @@
           "Zugang vormerken",
 
         formPrivacy:
-          "Ihre Angaben werden ausschließlich zur Validierung des Early-Access-Interesses verwendet. Die technische Datenverarbeitung wird vor dem Launch ergänzt.",
+          "Ihre Angaben werden vertraulich zur Bearbeitung Ihrer Early-Access-Registrierung verwendet und nicht verkauft.",
 
         faqTitle: "Häufige Fragen.",
 
@@ -2445,7 +2445,7 @@
           "Reserve early access",
 
         formPrivacy:
-          "Your information will be used for validating early-access interest. Technical data handling will be connected before launch.",
+          "Your information is handled confidentially for Early Access registration and is not sold.",
 
         faqTitle:
           "Frequently asked questions.",
@@ -2728,8 +2728,16 @@
        QUESTIONNAIRE
     ========================================================= */
 
+    /* =========================================================
+       FORMSPREE — EARLY ACCESS SUBMISSION
+       This endpoint receives the completed TenderRisk questionnaire.
+    ========================================================= */
+
+    const FORMSPREE_ENDPOINT = "https://formspree.io/f/moeqpnoq";
+
     let questionnaireStep = -1;
     let questionnaireAnswers = [];
+    let questionnaireSubmitting = false;
 
     function openQuestionnaire() {
 
@@ -3198,43 +3206,106 @@
     }
 
 
-    function nextQuestion() {
+    async function submitTenderRiskRegistration() {
+
+      if (questionnaireSubmitting) return false;
+
+      questionnaireSubmitting = true;
+
+      const submitButton =
+        document.querySelector("#questionnaireContent .next-btn");
+
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent =
+          currentLanguage === "de" ? "Wird gesendet…" : "Sending…";
+      }
+
+      const formData = new FormData();
+
+      formData.append("email", questionnaireAnswers.email || "");
+      formData.append("language", currentLanguage);
+      formData.append("source", "TenderRisk Early Access");
+
+      for (let i = 0; i < 5; i++) {
+        const answer = questionnaireAnswers[i];
+        formData.append(
+          `question_${i + 1}`,
+          Array.isArray(answer) ? answer.join(" | ") : String(answer || "")
+        );
+      }
+
+      formData.append("submitted_at", new Date().toISOString());
+
+      try {
+
+        const response = await fetch(FORMSPREE_ENDPOINT, {
+          method: "POST",
+          body: formData,
+          headers: {
+            Accept: "application/json"
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error("Formspree submission failed");
+        }
+
+        questionnaireSubmitting = false;
+        questionnaireStep = 5;
+        renderQuestionnaire();
+        return true;
+
+      } catch (error) {
+
+        console.error("TenderRisk submission error:", error);
+        questionnaireSubmitting = false;
+
+        const content =
+          document.getElementById("questionnaireContent");
+
+        if (content) {
+          const message =
+            currentLanguage === "de"
+              ? "Die Übermittlung ist gerade nicht möglich. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut."
+              : "The submission could not be sent right now. Please check your internet connection and try again.";
+
+          const errorBox = document.createElement("div");
+          errorBox.className = "email-error show";
+          errorBox.setAttribute("role", "alert");
+          errorBox.style.marginTop = "14px";
+          errorBox.textContent = message;
+          content.querySelector(".question-footer")?.before(errorBox);
+        }
+
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent =
+            currentLanguage === "de" ? "Absenden" : "Submit";
+        }
+
+        return false;
+      }
+    }
+
+
+    async function nextQuestion() {
 
       const answer =
-        questionnaireAnswers[
-          questionnaireStep
-        ];
+        questionnaireAnswers[questionnaireStep];
 
-      if (!answer ||
-          answer.length === 0) {
+      if (!answer || answer.length === 0 || questionnaireSubmitting) {
         return;
       }
 
       if (questionnaireStep === 4) {
-
-        /*
-          PLACEHOLDER:
-          This is where the real backend/database
-          connection will be added in Step 2.
-        */
-
-        console.log(
-          "TenderRisk validation submission:",
-          questionnaireAnswers
-        );
-
-        questionnaireStep = 5;
-
-        renderQuestionnaire();
-
+        await submitTenderRiskRegistration();
         return;
       }
 
       questionnaireStep++;
-
       renderQuestionnaire();
     }
-
 
     function previousQuestion() {
 
@@ -3370,51 +3441,65 @@
     }
 
 
-    function realTenderChoice(choice) {
+    async function realTenderChoice(choice) {
 
-      /*
-        PLACEHOLDER:
-        This event will later be sent to our database.
+      const labels = {
+        test: currentLanguage === "de" ? "Ja, gerne testen" : "Yes, I'd like to test it",
+        contact: currentLanguage === "de" ? "Kontakt, sobald verfügbar" : "Contact me when available",
+        later: currentLanguage === "de" ? "Vielleicht später" : "Maybe later",
+        no: currentLanguage === "de" ? "Noch nicht" : "Not yet"
+      };
 
-        For now it is only recorded in the browser console.
-      */
-
-      console.log(
-        "Real tender interest:",
-        choice,
-        questionnaireAnswers
-      );
-
-
-      const box =
-        document.querySelector(
-          ".real-tender-box"
-        );
+      const box = document.querySelector(".real-tender-box");
 
       if (box) {
-
         box.innerHTML = `
-
-          <strong>
-            ${
-              currentLanguage === "de"
-                ? "Danke."
-                : "Thank you."
-            }
-          </strong>
-
+          <strong>${currentLanguage === "de" ? "Danke." : "Thank you."}</strong>
           <div style="margin-top:8px;color:#69737a;font-size:13px;">
-            ${
-              currentLanguage === "de"
-                ? "Ihre Auswahl wurde erfasst. Die technische Übermittlung an unser System wird als nächster Schritt angeschlossen."
-                : "Your response has been recorded. The technical connection to our system will be added as the next step."
-            }
+            ${currentLanguage === "de" ? "Ihre Auswahl wird übermittelt…" : "Your response is being submitted…"}
           </div>
-
         `;
       }
-    }
 
+      try {
+        const formData = new FormData();
+        formData.append("email", questionnaireAnswers.email || "");
+        formData.append("real_tender_interest", labels[choice] || choice);
+        formData.append("real_tender_interest_code", choice);
+        formData.append("language", currentLanguage);
+        formData.append("source", "TenderRisk Early Access — tender interest");
+
+        const response = await fetch(FORMSPREE_ENDPOINT, {
+          method: "POST",
+          body: formData,
+          headers: { Accept: "application/json" }
+        });
+
+        if (!response.ok) throw new Error("Formspree tender-interest submission failed");
+
+        if (box) {
+          box.innerHTML = `
+            <strong>${currentLanguage === "de" ? "Danke." : "Thank you."}</strong>
+            <div style="margin-top:8px;color:#69737a;font-size:13px;">
+              ${currentLanguage === "de" ? "Ihre Auswahl wurde erfolgreich übermittelt." : "Your response has been submitted successfully."}
+            </div>
+          `;
+        }
+
+      } catch (error) {
+
+        console.error("TenderRisk tender-interest submission error:", error);
+
+        if (box) {
+          box.innerHTML = `
+            <strong>${currentLanguage === "de" ? "Vielen Dank." : "Thank you."}</strong>
+            <div style="margin-top:8px;color:#69737a;font-size:13px;">
+              ${currentLanguage === "de" ? "Ihre Registrierung wurde gespeichert, aber diese zusätzliche Auswahl konnte gerade nicht übermittelt werden." : "Your registration was received, but this additional choice could not be submitted right now."}
+            </div>
+          `;
+        }
+      }
+    }
 
     /* =========================================================
        EARLY ACCESS FORM
