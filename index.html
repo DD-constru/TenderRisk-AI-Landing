@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>TenderRisk — Vertragliche Risiken früher erkennen.</title>
+  <title>TenderRisk — European Construction Risk Intelligence.</title>
 
   <meta
     name="description"
-    content="KI-gestützte Analyse von Ausschreibungsunterlagen – nachvollziehbar und strukturiert."
+    content="European construction tender risk intelligence — structured, traceable AI-assisted review of tender documents."
   />
 
   <style>
@@ -78,6 +78,31 @@
     }
 
     /* =========================
+       LOADING / ENTRANCE MOTION
+    ========================= */
+    .site-loader,.language-loader{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;background:rgba(245,244,240,.97);backdrop-filter:blur(12px);opacity:1;visibility:visible;transition:opacity .32s ease,visibility .32s ease}
+    .site-loader.hidden,.language-loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+    .loader-inner{text-align:center}
+    .loader-mark{width:50px;height:50px;margin:0 auto 17px}
+    .loader-mark svg{width:50px;height:50px;display:block;transform:rotate(-90deg)}
+    .loader-track,.loader-progress{fill:none;stroke-width:2.2}
+    .loader-track{stroke:var(--line)}
+    .loader-progress{stroke:var(--steel);stroke-linecap:round;stroke-dasharray:144.51;stroke-dashoffset:144.51;animation:loaderRingFill .82s cubic-bezier(.2,.72,.2,1) forwards}
+    .language-loader .loader-progress{animation-duration:.30s}
+    .loader-word{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+    @keyframes loaderRingFill{from{stroke-dashoffset:144.51}to{stroke-dashoffset:0}}
+    @keyframes loaderAutoHide{0%,80%{opacity:1;visibility:visible}100%{opacity:0;visibility:hidden;pointer-events:none}}
+    .site-loader{animation:loaderAutoHide 1s ease forwards}
+    .hero > .container > div:first-child > *, .visual-wrap, .section-header, .problem-grid > *, .trust-grid > *, .audience-grid > *, .early-grid > *, .faq-list{opacity:0;transform:translateY(16px);animation:pageRise .72s cubic-bezier(.2,.7,.2,1) forwards}
+    .hero > .container > div:first-child > *:nth-child(1){animation-delay:.08s}
+    .hero > .container > div:first-child > *:nth-child(2){animation-delay:.16s}
+    .hero > .container > div:first-child > *:nth-child(3){animation-delay:.24s}
+    .hero > .container > div:first-child > *:nth-child(4){animation-delay:.32s}
+    .hero > .container > div:first-child > *:nth-child(5){animation-delay:.40s}
+    .visual-wrap{animation-delay:.28s}
+    @keyframes pageRise{to{opacity:1;transform:none}}
+
+    /* =========================
        HEADER
     ========================= */
 
@@ -137,9 +162,8 @@
       transform: rotate(-45deg);
     }
 
-    .brand-name {
-      font-size: 17px;
-    }
+    .brand-name { font-size: 17px; display:block; }
+    .brand-sub { font-size:9px; color:var(--muted); font-weight:600; letter-spacing:.10em; text-transform:uppercase; display:block; margin-top:1px; }
 
     .nav-right {
       display: flex;
@@ -563,13 +587,6 @@
       margin-top: 12px;
       color: var(--muted);
       font-size: 14px;
-    }
-
-    .method-arrow {
-      display: block;
-      margin-top: 24px;
-      color: var(--steel);
-      font-size: 24px;
     }
 
     /* =========================
@@ -1275,6 +1292,20 @@
 
 <body>
 
+  <div class="site-loader" id="siteLoader" aria-hidden="true">
+    <div class="loader-inner">
+      <div class="loader-mark"><svg viewBox="0 0 52 52"><circle class="loader-track" cx="26" cy="26" r="23"></circle><circle class="loader-progress" cx="26" cy="26" r="23"></circle></svg></div>
+      <div class="loader-word">TenderRisk</div>
+    </div>
+  </div>
+
+  <div class="language-loader hidden" id="languageLoader" aria-hidden="true">
+    <div class="loader-inner">
+      <div class="loader-mark"><svg viewBox="0 0 52 52"><circle class="loader-track" cx="26" cy="26" r="23"></circle><circle class="loader-progress" cx="26" cy="26" r="23"></circle></svg></div>
+      <div class="loader-word" id="languageLoaderText">Language</div>
+    </div>
+  </div>
+
   <!-- =========================
        NAVIGATION
   ========================= -->
@@ -1284,7 +1315,7 @@
 
       <a href="#" class="brand" aria-label="TenderRisk">
         <div class="logo" aria-hidden="true"></div>
-        <span class="brand-name">TenderRisk</span>
+        <span><span class="brand-name">TenderRisk</span><span class="brand-sub">European Construction Intelligence</span></span>
       </a>
 
       <div class="nav-right">
@@ -1550,8 +1581,6 @@
               Ausschreibungsunterlagen, Vertragsdokumente und relevante
               Anlagen werden strukturiert erfasst.
             </p>
-
-            <span class="method-arrow">↓</span>
           </div>
 
           <div class="method-step" id="how">
@@ -1565,8 +1594,6 @@
               Relevante Vertrags- und Geschäftsrisiken werden identifiziert,
               kategorisiert und über mehrere Dokumente hinweg geprüft.
             </p>
-
-            <span class="method-arrow">↓</span>
           </div>
 
           <div class="method-step">
@@ -1580,8 +1607,6 @@
               Ergebnisse sollen auf Dokument, Seite oder Abschnitt
               zurückverweisen und Unsicherheit transparent machen.
             </p>
-
-            <span class="method-arrow">→</span>
           </div>
 
         </div>
@@ -1939,7 +1964,27 @@
             </div>
           </div>
 
-        </div>
+
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span data-i18n="faq6q">Was passiert mit meinen Daten?</span>
+              <span class="faq-symbol">+</span>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="faq6a">Ihre Angaben werden vertraulich behandelt und nur für die Early-Access-Registrierung, Produktvalidierung und die Kommunikation rund um den Test verwendet. Personenbezogene Daten werden nicht verkauft.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question">
+              <span data-i18n="faq7q">Ist meine Registrierung nach EU-Datenschutzrecht geschützt?</span>
+              <span class="faq-symbol">+</span>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="faq7a">Die Registrierung wird nach den Grundsätzen der DSGVO aufgebaut, insbesondere mit Blick auf Zweckbindung, Datenminimierung, Vertraulichkeit und angemessene Sicherheitsmaßnahmen.</p>
+            </div>
+          </div>        </div>
 
       </div>
     </section>
@@ -2080,11 +2125,11 @@
         method1Text:
           "Ausschreibungsunterlagen, Vertragsdokumente und relevante Anlagen werden strukturiert erfasst.",
 
-        method2Title: "Analyse",
+        method2Title: "Strukturierte Prüfung",
         method2Text:
           "Relevante Vertrags- und Geschäftsrisiken werden identifiziert, kategorisiert und über mehrere Dokumente hinweg geprüft.",
 
-        method3Title: "Fundstellen",
+        method3Title: "Entscheidung",
         method3Text:
           "Ergebnisse sollen auf Dokument, Seite oder Abschnitt zurückverweisen und Unsicherheit transparent machen.",
 
@@ -2155,7 +2200,7 @@
         aud3b: "Deutschland / DACH",
 
         aud4: "Entscheidung",
-        aud4b: "Bid / No-Bid",
+        aud4b: "Bieten / Nicht bieten",
 
         earlyTitle:
           "Werden Sie Teil der ersten Testgruppe.",
@@ -2193,6 +2238,11 @@
         faq5q: "Was passiert nach der Registrierung?",
         faq5a:
           "Nach der Registrierung stellen wir einige kurze Fragen zum Ausschreibungsprozess. Interessierte Unternehmen können anschließend angeben, ob sie eine echte Ausschreibung für einen frühen Test bereitstellen möchten.",
+
+        faq6q: "Was passiert mit meinen Daten?",
+        faq6a: "Ihre Angaben werden vertraulich behandelt und nur für die Early-Access-Registrierung, Produktvalidierung und die Kommunikation rund um den Test verwendet. Personenbezogene Daten werden nicht verkauft.",
+        faq7q: "Ist meine Registrierung nach EU-Datenschutzrecht geschützt?",
+        faq7a: "Die Registrierung wird nach den Grundsätzen der EU-Datenschutz-Grundverordnung (DSGVO) aufgebaut, insbesondere mit Blick auf Zweckbindung, Datenminimierung, Vertraulichkeit und angemessene Sicherheitsmaßnahmen. Vollständige DSGVO-Compliance hängt von der späteren technischen Umsetzung und den eingesetzten Dienstleistern ab.",
 
         footerPrivacy: "Datenschutz",
         footerLegal: "Impressum",
@@ -2266,11 +2316,11 @@
         method1Text:
           "Tender documents, contract materials and relevant appendices are captured and structured.",
 
-        method2Title: "Analysis",
+        method2Title: "Structured review",
         method2Text:
           "Relevant contractual and commercial risks are identified, classified and checked across documents.",
 
-        method3Title: "Evidence",
+        method3Title: "Decision",
         method3Text:
           "Findings are intended to point back to the document, page or section while making uncertainty visible.",
 
@@ -2400,6 +2450,11 @@
 
         faq5a:
           "After registering, you will answer a few short questions about your tender workflow. Interested companies can then indicate whether they would like to provide a real tender for an early test.",
+
+        faq6q: "What happens to my data?",
+        faq6a: "Your information is handled confidentially and used only for early-access registration, product validation and communication related to testing. Personal data is not sold.",
+        faq7q: "Is my registration protected under EU data-protection rules?",
+        faq7a: "The registration will be built around the principles of the EU General Data Protection Regulation (GDPR), including purpose limitation, data minimisation, confidentiality and appropriate security measures. Full GDPR compliance depends on the final technical implementation and service providers.",
 
         footerPrivacy: "Privacy",
         footerLegal: "Legal notice",
@@ -2574,14 +2629,26 @@
     let currentLanguage =
       localStorage.getItem("tenderRiskLanguage") || "de";
 
-    function setLanguage(language) {
+    function setLanguage(language, withLoader = true) {
 
+      if (withLoader && language === currentLanguage) return;
       currentLanguage = language;
 
       localStorage.setItem(
         "tenderRiskLanguage",
         language
       );
+
+      if (withLoader) {
+        const loader = document.getElementById("languageLoader");
+        const text = document.getElementById("languageLoaderText");
+        if (text) text.textContent = language === "de" ? "Deutsch" : "English";
+        if (loader) {
+          const ring = loader.querySelector(".loader-progress");
+          if (ring) { ring.style.animation="none"; void ring.offsetWidth; ring.style.animation="loaderRingFill .30s cubic-bezier(.2,.72,.2,1) forwards"; }
+          loader.classList.remove("hidden");
+        }
+      }
 
       document.documentElement.lang = language;
 
@@ -2623,6 +2690,8 @@
           "active",
           language === "en"
         );
+
+      if (withLoader) setTimeout(() => document.getElementById("languageLoader")?.classList.add("hidden"), 300);
     }
 
 
@@ -2724,6 +2793,11 @@
                 }"
               />
 
+            </div>
+
+            <div style="margin-top:15px;padding:14px 16px;background:#edf4f1;border:1px solid #cad8d6;border-radius:12px;color:#52635e;font-size:11px;line-height:1.5">
+              <strong style="display:block;color:#314d44;margin-bottom:3px">${currentLanguage === "de" ? "Ihre Daten bleiben privat." : "Your data stays private."}</strong>
+              ${currentLanguage === "de" ? "Wir verkaufen keine personenbezogenen Daten und behandeln Ihre Angaben vertraulich." : "We do not sell personal data and handle your information confidentially."}
             </div>
 
             <div class="question-footer">
@@ -3086,6 +3160,11 @@
           </p>
 
 
+          <div style="margin:20px 0;padding:14px 16px;background:#edf4f1;border:1px solid #cad8d6;border-radius:12px;text-align:left;color:#52635e;font-size:11px;line-height:1.5">
+            <strong style="display:block;color:#314d44;margin-bottom:3px">${currentLanguage === "de" ? "Ihre Angaben bleiben vertraulich." : "Your information remains private."}</strong>
+            ${currentLanguage === "de" ? "Ihre Angaben werden nur im Rahmen der Early-Access-Validierung verwendet und nicht verkauft." : "Your information is used only for early-access validation and is not sold."}
+          </div>
+
           <div class="real-tender-box">
 
             <strong>
@@ -3343,9 +3422,8 @@
       .textContent =
       new Date().getFullYear();
 
-    setLanguage(
-      currentLanguage
-    );
+    setLanguage(currentLanguage, false);
+    setTimeout(() => document.getElementById("siteLoader")?.classList.add("hidden"), 820);
 
   </script>
 
