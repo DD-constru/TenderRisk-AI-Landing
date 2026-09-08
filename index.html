@@ -794,6 +794,27 @@
       border-color: #b7cfdd;
     }
 
+    .email-input.email-invalid {
+      border-color: #c45a52;
+      box-shadow: 0 0 0 2px rgba(196,90,82,.10);
+    }
+
+    .email-input.email-valid {
+      border-color: #7aa58f;
+    }
+
+    .email-error {
+      display: none;
+      margin-top: 7px;
+      color: #d76b61;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .email-error.show {
+      display: block;
+    }
+
     .early-form .primary-btn {
       width: 100%;
       margin-top: 10px;
@@ -1824,7 +1845,7 @@
 
         </div>
 
-        <form class="early-form" id="earlyAccessForm">
+        <form class="early-form" id="earlyAccessForm" novalidate>
 
           <input
             class="email-input"
@@ -1834,7 +1855,15 @@
             autocomplete="email"
             placeholder="Ihre E-Mail-Adresse"
             data-i18n-placeholder="emailPlaceholder"
+            aria-describedby="emailInputError"
           />
+
+          <div
+            class="email-error"
+            id="emailInputError"
+            role="alert"
+            aria-live="polite"
+          ></div>
 
           <button
             type="submit"
@@ -2791,7 +2820,15 @@
                   translations[currentLanguage]
                     .emailPlaceholder
                 }"
+                aria-describedby="questionnaireEmailError"
               />
+
+              <div
+                class="email-error"
+                id="questionnaireEmailError"
+                role="alert"
+                aria-live="polite"
+              ></div>
 
             </div>
 
@@ -2831,9 +2868,14 @@
         `;
 
         setTimeout(() => {
-          document
-            .getElementById("questionnaireEmail")
-            ?.focus();
+          const questionnaireEmail =
+            document.getElementById("questionnaireEmail");
+
+          questionnaireEmail?.focus();
+          attachEmailValidation(
+            "questionnaireEmail",
+            "questionnaireEmailError"
+          );
         }, 100);
 
         return;
@@ -2978,6 +3020,101 @@
     }
 
 
+    function isValidEmailAddress(email) {
+
+      const value = String(email || "").trim();
+
+      /*
+        Keep this intentionally practical rather than trying to implement
+        the entire RFC email grammar. We require:
+        - one @ character
+        - no whitespace
+        - a domain containing a dot
+        - a 2+ character top-level domain
+      */
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+      return emailPattern.test(value);
+    }
+
+
+    function setEmailError(input, errorElement, message) {
+
+      if (!input || !errorElement) return;
+
+      input.classList.add("email-invalid");
+      input.classList.remove("email-valid");
+      input.setAttribute("aria-invalid", "true");
+      errorElement.textContent = message;
+      errorElement.classList.add("show");
+    }
+
+
+    function clearEmailError(input, errorElement) {
+
+      if (!input || !errorElement) return;
+
+      input.classList.remove("email-invalid");
+      input.classList.add("email-valid");
+      input.setAttribute("aria-invalid", "false");
+      errorElement.textContent = "";
+      errorElement.classList.remove("show");
+    }
+
+
+    function emailErrorText() {
+
+      return currentLanguage === "de"
+        ? "Bitte geben Sie eine gültige E-Mail-Adresse ein, z. B. name@firma.de."
+        : "Please enter a valid email address, e.g. name@company.com.";
+    }
+
+
+    function validateEmailField(input, errorElement) {
+
+      if (!input || !errorElement) return false;
+
+      const email = input.value.trim();
+
+      if (!isValidEmailAddress(email)) {
+        setEmailError(input, errorElement, emailErrorText());
+        return false;
+      }
+
+      clearEmailError(input, errorElement);
+      return true;
+    }
+
+
+    function attachEmailValidation(inputId, errorId) {
+
+      const input = document.getElementById(inputId);
+      const errorElement = document.getElementById(errorId);
+
+      if (!input || !errorElement || input.dataset.validationAttached === "true") {
+        return;
+      }
+
+      input.dataset.validationAttached = "true";
+
+      input.addEventListener("input", function() {
+
+        if (input.classList.contains("email-invalid")) {
+          validateEmailField(input, errorElement);
+        } else if (isValidEmailAddress(input.value.trim())) {
+          clearEmailError(input, errorElement);
+        }
+      });
+
+      input.addEventListener("blur", function() {
+
+        if (input.value.trim() !== "") {
+          validateEmailField(input, errorElement);
+        }
+      });
+    }
+
+
     function submitEmail() {
 
       const input =
@@ -2990,12 +3127,14 @@
       const email =
         input.value.trim();
 
-      if (!email ||
-          !email.includes("@")) {
+      const errorElement =
+        document.getElementById(
+          "questionnaireEmailError"
+        );
 
-        input.style.borderColor =
-          "#9a4b43";
+      if (!validateEmailField(input, errorElement)) {
 
+        input.focus();
         return;
       }
 
@@ -3281,6 +3420,18 @@
        EARLY ACCESS FORM
     ========================================================= */
 
+    const earlyAccessEmailInput =
+      document.getElementById("emailInput");
+
+    const earlyAccessEmailError =
+      document.getElementById("emailInputError");
+
+    attachEmailValidation(
+      "emailInput",
+      "emailInputError"
+    );
+
+
     document
       .getElementById("earlyAccessForm")
       .addEventListener("submit", function(event) {
@@ -3288,11 +3439,16 @@
         event.preventDefault();
 
         const email =
-          document.getElementById(
-            "emailInput"
-          ).value.trim();
+          earlyAccessEmailInput.value.trim();
 
-        if (!email) return;
+        if (!validateEmailField(
+          earlyAccessEmailInput,
+          earlyAccessEmailError
+        )) {
+
+          earlyAccessEmailInput.focus();
+          return;
+        }
 
         /*
           The email will be passed into the questionnaire.
