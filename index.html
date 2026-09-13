@@ -3254,6 +3254,7 @@
         questionnaireSubmitting = false;
         questionnaireStep = 5;
         renderQuestionnaire();
+        window.sendTenderRiskConfirmation?.(formData.get("email"));
         return true;
 
       } catch (error) {
@@ -3668,5 +3669,6 @@
 
   </script>
 
+  <script src="confirmation.js" defer></script>
 </body>
 </html>
