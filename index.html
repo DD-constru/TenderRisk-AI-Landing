@@ -2065,7 +2065,7 @@
       <div class="progress">
 
         <div class="progress-label" id="progressLabel">
-          01 / 05
+          01 / 04
         </div>
 
         <div class="progress-track">
@@ -2557,20 +2557,6 @@
             "Die Prüfung aller Unterlagen dauert zu lange",
             "Nichts besonders schwierig"
           ]
-        },
-
-        {
-
-          title: "Wie hilfreich wäre ein Tool für Sie, das relevante Risiken in Ausschreibungsunterlagen automatisch hervorhebt und die jeweilige Fundstelle anzeigt?",
-
-          type: "single",
-
-          options: [
-            "Sehr hilfreich",
-            "Hilfreich",
-            "Vielleicht",
-            "Eher nicht hilfreich"
-          ]
         }
 
       ],
@@ -2632,17 +2618,6 @@
             "Checking liability / warranty obligations",
             "Reviewing all documents takes too long",
             "Nothing particularly difficult"
-          ]
-        },
-
-        {
-          title: "How useful would a tool be that automatically highlights relevant risks in tender documents and shows you where each finding comes from?",
-          type: "single",
-          options: [
-            "Very useful",
-            "Useful",
-            "Maybe",
-            "Probably not useful"
           ]
         }
 
@@ -2784,8 +2759,8 @@
 
       /*
         STEP -1 = EMAIL
-        STEP 0-4 = QUESTIONS
-        STEP 5 = SUCCESS
+        STEP 0-3 = QUESTIONS
+        STEP 4 = SUCCESS
       */
 
       if (questionnaireStep === -1) {
@@ -2812,8 +2787,8 @@
             <div class="question-help">
               ${
                 currentLanguage === "de"
-                  ? "Danach folgen fünf kurze Fragen. Dauert nur wenige Minuten."
-                  : "Then we'll ask five short questions. It only takes a few minutes."
+                  ? "Danach folgen vier kurze Fragen. Dauert nur wenige Minuten."
+                  : "Then we'll ask four short questions. It only takes a few minutes."
               }
             </div>
 
@@ -2891,7 +2866,7 @@
 
 
       if (questionnaireStep >= 0 &&
-          questionnaireStep < 5) {
+          questionnaireStep < 4) {
 
         const q =
           questions[currentLanguage][
@@ -2906,10 +2881,10 @@
         progressLabel.textContent =
           String(questionnaireStep + 1)
             .padStart(2, "0") +
-          " / 05";
+          " / 04";
 
         progressBar.style.width =
-          ((questionnaireStep + 1) / 5 * 100) +
+          ((questionnaireStep + 1) / 4 * 100) +
           "%";
 
 
@@ -3000,7 +2975,7 @@
                 }
               >
                 ${
-                  questionnaireStep === 4
+                  questionnaireStep === 3
                     ? (
                         currentLanguage === "de"
                           ? "Absenden"
@@ -3227,7 +3202,7 @@
       formData.append("language", currentLanguage);
       formData.append("source", "TenderRisk Early Access");
 
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 4; i++) {
         const answer = questionnaireAnswers[i];
         formData.append(
           `question_${i + 1}`,
@@ -3252,7 +3227,7 @@
         }
 
         questionnaireSubmitting = false;
-        questionnaireStep = 5;
+        questionnaireStep = 4;
         renderQuestionnaire();
         window.sendTenderRiskConfirmation?.(formData.get("email"));
         return true;
@@ -3299,7 +3274,7 @@
         return;
       }
 
-      if (questionnaireStep === 4) {
+      if (questionnaireStep === 3) {
         await submitTenderRiskRegistration();
         return;
       }
